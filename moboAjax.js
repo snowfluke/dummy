@@ -12,12 +12,6 @@
                              {  
                                   $('#LMatherboard').fadeIn('fast');  
                                   $('#LMatherboard').html(data);  
-                             },  
-                             error: function(jqXHR, textStatus, errorThrown)
-                             {
-                                  total = total - parseInt($('#hMatherboard').val())
-                             	   $('#hMatherboard').val(0);
-                             	   $("#jmlttl").val(total);
                              }
                         });  
                    }  
@@ -31,7 +25,16 @@
                     
                     $("#jmlttl").val(total);
                     $('#LMatherboard').fadeOut('fast');
-              }); 
+              });
+              
+              // Event Baru
+              $("#Matherboard").change(function(){
+              		if($('#hMatherboard').val().length != 0) return;
+              		
+  			total = total - parseInt($('#hMatherboard').val())
+                       $('#hMatherboard').val(0);
+                       $("#jmlttl").val(total);
+		});  
               
               $(document).on('click', function(){
                    $('#LMatherboard').fadeOut('fast');  
