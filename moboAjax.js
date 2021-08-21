@@ -15,7 +15,9 @@
                              },  
                              error: function(jqXHR, textStatus, errorThrown)
                              {
+                                  total = total - parseInt($('#hMatherboard').val())
                              	   $('#hMatherboard').val(0);
+                             	   $("#jmlttl").val(total);
                              }
                         });  
                    }  
