@@ -22,7 +22,7 @@
                     $('#hMatherboard').val($(this).children('#data-harga2').text());
                     
                     console.log('Atas==========================')
-                    console.log('Nilai total setelah di klik:', total)
+                    console.log('Nilai total sebelum di klik:', total)
                     
                     total = total + parseInt($(this).children('#data-harga').text());
                     
@@ -34,7 +34,7 @@
               
               // Event Baru
               $("#Matherboard").change(function(){
-              		let curVal = $(this).val();  
+              		let curVal = this.value;  
               		if(curVal != '') return;
               		
               		console.log('Bawah==========================')
@@ -43,7 +43,10 @@
   			
   			total = total - parseInt($('#hMatherboard').val())
                        $('#hMatherboard').val('');
-                       $("#jmlttl").val(total);
+		      
+			//jadiin titik titik
+		       let formattedTotal = total.toLocaleString('id')
+                       $("#jmlttl").val(formattedTotal);
                        
                        console.log('Nilai Total setelah dihapus:', total)
 		});  
