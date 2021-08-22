@@ -24,21 +24,14 @@ $(document).ready(function () {
 		}
 	});
 
-	$('#hvr').click(function () {
+	 $(document).on('click', '#hvr', function () {
+		console.log('debug 2')
 		let className = this.className;
-		if (!inputList.includes(className)) {
-			console.log('debug 2')
-			let autoComplete = "#L" + className;
-			let el = $(autoComplete);
-			if (el.length == 0) return;
-			console.log('debug 2a')
-			return $(autoComplete).fadeOut("fast");
-		}
 
 		let id = "#" + className;
 		let idHasil = "#h" + className;
 		let idAutoComplete = "#L" + className;
-		console.log('debug 2b')
+		console.log('debug 2a')
 		
 		$(id).val($(this).children("#data-nama").text());
 		$(idHasil).text($(this).children("#data-harga2").text());
