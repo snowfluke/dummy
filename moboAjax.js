@@ -27,8 +27,10 @@
                     total = total + parseInt($(this).children('#data-harga').text());
                     
                     console.log('Nilai total setelah di klik:', total)
-                    
-                    $("#jmlttl").val(total);
+		      
+                    let formattedTotal = total.toLocaleString('id')
+                    $("#jmlttl").val(formattedTotal);
+		      
                     $('#LMatherboard').fadeOut('fast');
               });
               
