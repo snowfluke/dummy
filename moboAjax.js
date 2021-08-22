@@ -19,7 +19,7 @@
               
               $(document).on('click', '.Matherboard', function(){  
                     $('#Matherboard').val($(this).children('#data-nama').text());
-                    $('#hMatherboard').val($(this).children('#data-harga2').text());
+                    $('#hMatherboard').text($(this).children('#data-harga2').text());
                     
                     console.log('Atas==========================')
                     console.log('Nilai total sebelum di klik:', total)
@@ -41,8 +41,8 @@
               		console.log('Nilai Total sebelum dihapus:', total)
               		console.log('Nilai mobo:', curVal)
   			
-  			total = total - parseInt($('#hMatherboard').val())
-                       $('#hMatherboard').val('');
+  			total = total - parseInt($('#hMatherboard').text())
+                       $('#hMatherboard').text('');
 		      
 			//jadiin titik titik
 		       let formattedTotal = total.toLocaleString('id')
