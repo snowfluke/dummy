@@ -17,7 +17,7 @@ $(document).ready(function () {
 				data: { query: query },
 				success: function (data) {
 					console.log('debug 1a')
-					$(idAutoComplete)
+					console.log($(idAutoComplete))
 					$(idAutoComplete).fadeIn("fast");
 					$(idAutoComplete).html(data);
 				},
