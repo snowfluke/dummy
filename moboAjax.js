@@ -4,7 +4,8 @@ $(document).ready(function () {
 	$("input[type=text]").click(function () {
 		let id = this.id;
 		if (!inputList.includes(id)) return;
-
+		console.log('debug 1')
+		console.log('id:', id)
 		let idAutoComplete = "#L" + id;
 		let idUrl = "ajax/ajaxrakitan/" + id + ".php";
 
@@ -15,6 +16,8 @@ $(document).ready(function () {
 				method: "POST",
 				data: { query: query },
 				success: function (data) {
+					console.log('debug 1a')
+					$(idAutoComplete)
 					$(idAutoComplete).fadeIn("fast");
 					$(idAutoComplete).html(data);
 				},
@@ -25,10 +28,12 @@ $(document).ready(function () {
 	$(document).click(function () {
 		let className = this.className;
 		if (!inputList.includes(className)) {
+			console.log('debug 2')
 			let autoComplete = "#L" + className;
 			let el = $(autoComplete);
 			if(this.nodeName == 'INPUT') return;
 			if (el.length == 0) return;
+			console.log('debug 2a')
 			return $(autoComplete).fadeOut("fast");
 		}
 
@@ -56,7 +61,7 @@ $(document).ready(function () {
 	$("input[type=text]").change(function () {
 		let id = this.id;
 		if (!inputList.includes(id)) return;
-
+		console.log('debug 3')
 		let curVal = this.value;
 		if (curVal != "") return;
 
