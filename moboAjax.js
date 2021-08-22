@@ -27,8 +27,8 @@ $(document).ready(function () {
 		if (!inputList.includes(className)) {
 			let autoComplete = "#L" + className;
 			let el = $(autoComplete);
+			if(this.nodeName == 'INPUT') return;
 			if (el.length == 0) return;
-
 			return $(autoComplete).fadeOut("fast");
 		}
 
