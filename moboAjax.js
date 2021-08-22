@@ -17,7 +17,6 @@ $(document).ready(function () {
 				data: { query: query },
 				success: function (data) {
 					console.log('debug 1a')
-					console.log($(idAutoComplete))
 					$(idAutoComplete).fadeIn("fast");
 					$(idAutoComplete).html(data);
 				},
@@ -31,7 +30,6 @@ $(document).ready(function () {
 			console.log('debug 2')
 			let autoComplete = "#L" + className;
 			let el = $(autoComplete);
-			if(this.nodeName == 'INPUT') return;
 			if (el.length == 0) return;
 			console.log('debug 2a')
 			return $(autoComplete).fadeOut("fast");
@@ -41,6 +39,7 @@ $(document).ready(function () {
 		let idHasil = "#h" + className;
 		let idAutoComplete = "#L" + className;
 		console.log('debug 2b')
+		
 		$(id).val($(this).children("#data-nama").text());
 		$(idHasil).text($(this).children("#data-harga2").text());
 
@@ -72,7 +71,7 @@ $(document).ready(function () {
 		console.log("Nilai Total sebelum dihapus:", total);
 		console.log("Nilai mobo:", curVal);
 
-		total = total - parseInt($(idHasil).text());
+		total = total - parseInt($(idHasil).text().replace(/,/g, ""));
 		$(idHasil).text("");
 
 		//jadiin titik titik
