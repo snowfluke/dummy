@@ -60,11 +60,12 @@ $(document).ready(function () {
 	// Event Baru
 	$("input[type=text]").change(function () {
 		let id = this.id;
-		if (!inputList.includes(id)) return;
+
 		console.log('debug 3')
 		let curVal = this.value;
 		if (curVal != "") return;
-
+		if (!inputList.includes(id)) return;
+		
 		let idHasil = "#h" + id;
 
 		console.log("Bawah==========================");
