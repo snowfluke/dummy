@@ -75,8 +75,4 @@ $(document).ready(function () {
 
 		console.log("Nilai Total setelah dihapus:", total);
 	});
-
-	$(document).on("click", function () {
-		$("#LMatherboard").fadeOut("fast");
-	});
 });
