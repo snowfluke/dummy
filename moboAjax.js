@@ -25,7 +25,7 @@ $(document).ready(function () {
 		}
 	});
 
-	$(document).click(function () {
+	$('#hvr').click(function () {
 		let className = this.className;
 		if (!inputList.includes(className)) {
 			console.log('debug 2')
