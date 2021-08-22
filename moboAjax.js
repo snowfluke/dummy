@@ -24,9 +24,9 @@ $(document).ready(function () {
 		}
 	});
 
-	 $(document).on('click', '#hvr', function () {
+	 $(document).on('click', '.awaru', function () {
 		console.log('debug 2')
-		let className = this.className;
+		let className = this.className.split(' ')[0];
 
 		let id = "#" + className;
 		let idHasil = "#h" + className;
