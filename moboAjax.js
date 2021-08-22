@@ -40,7 +40,7 @@ $(document).ready(function () {
 		let id = "#" + className;
 		let idHasil = "#h" + className;
 		let idAutoComplete = "#L" + className;
-
+		console.log('debug 2b')
 		$(id).val($(this).children("#data-nama").text());
 		$(idHasil).text($(this).children("#data-harga2").text());
 
