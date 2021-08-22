@@ -1,7 +1,7 @@
 let inputList = ["Matherboard", "Prosesor", "Casing"];
 
 $(document).ready(function () {
-	$("input[type=text]").click(function () {
+	$("input[type=text]").keyup(function () {
 		let id = this.id;
 		if (!inputList.includes(id)) return;
 		console.log('debug 1')
