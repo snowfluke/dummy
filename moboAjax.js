@@ -63,8 +63,8 @@ $(document).ready(function () {
 		console.log("Bawah==========================");
 		console.log("Nilai Total sebelum dihapus:", total);
 		console.log("Nilai mobo:", curVal);
-
-		total = total - parseInt($(idHasil).text().replace(/,/g, ""));
+		
+		total = total - parseInt($(idHasil).text().replace(/\./g, ""));
 		$(idHasil).text("");
 
 		//jadiin titik titik
