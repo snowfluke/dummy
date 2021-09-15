@@ -18,12 +18,13 @@
         window.localStorage.setItem(key, JSON.stringify(value))
       } else if (action == 'get') {
         event.source.postMessage({
-          action: 'returnData',
-          key,
-          JSON.parse(window.localStorage.getItem(key))
+          action: 'returnData', 
+          key: key, 
+          value: JSON.parse(window.localStorage.getItem(key))
         }, '*')
       }
     }
     </script>
   </body>
 </html>
+
