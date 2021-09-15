@@ -5,15 +5,16 @@
   </head>
   <body>
     <script type="text/javascript">
-    const domains = [
-      "https://tempmailo.com/",
-      "https://bremit.io"]
+//     const domains = [
+//       "https://tempmailo.com",
+//       "https://bremit.io"]
     
     window.addEventListener("message", messageHandler, false);
       
     function messageHandler(event) {
-      if (!domains.includes(event.origin))
-        return;  const { action, key, value } = event.data
+      // if (!domains.includes(event.origin)) return;
+      
+      const { action, key, value } = event.data
       if (action == 'save'){
         window.localStorage.setItem(key, JSON.stringify(value))
       } else if (action == 'get') {
