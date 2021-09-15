@@ -1,2 +1,2 @@
 # dummy
-Dummy repo for redirecting to my android app
+Dummy repo for dummy hosting
