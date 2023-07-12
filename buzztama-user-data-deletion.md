@@ -2,7 +2,7 @@
 
 As a user of our app, you have the right to request the deletion of your data from our systems. If you would like to delete your data, please follow the instructions below:
 
-1. Contact us: To initiate the data deletion process, please send an email to [Contact Email Address] requesting the deletion of your data.
+1. Contact us: To initiate the data deletion process, please send an email to [awalariansyah7@gmail.com] requesting the deletion of your data.
 
 2. Provide necessary information: In your email, please include the following information to help us locate and delete your data efficiently:
    - Provide the email address associated with your account.
@@ -16,4 +16,4 @@ As a user of our app, you have the right to request the deletion of your data fr
 
 Please note that by requesting the deletion of your data, you will no longer have access to any personalized features or content associated with your account, and your account will be permanently deactivated.
 
-If you have any questions or need further assistance regarding the deletion of your data, please do not hesitate to contact us at [Contact Email Address].
+If you have any questions or need further assistance regarding the deletion of your data, please do not hesitate to contact us at [awalariansyah7@gmail.com].
