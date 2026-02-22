@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TTS Benchmark Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a26;
+    --border: #2a2a3d; --accent: #7c6bff; --accent2: #ff6b9d;
+    --accent3: #6bffd8; --accent4: #ffd96b; --text: #e8e8f0; --muted: #6b6b8a;
+    --font-mono: 'Space Mono', monospace; --font-display: 'Syne', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-mono); min-height: 100vh; padding: 2rem; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px; opacity: 0.22; pointer-events: none; z-index: 0;
+  }
+  .container { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; }
+  header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.75rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+  h1 {
+    font-family: var(--font-display); font-size: 1.9rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.72rem; }
+
+  .stats-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.25rem; }
+  @media(max-width:600px){ .stats-strip { grid-template-columns: 1fr 1fr; } }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1.1rem; }
+  .stat-label { color: var(--muted); font-size: 0.62rem; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .25rem; }
+  .stat-value { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; }
+  .stat-sub   { color: var(--muted); font-size: 0.62rem; margin-top: .15rem; }
+
+  .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .legend-item { display: flex; align-items: center; gap: .4rem; font-size: .72rem; color: var(--muted); }
+  .legend-swatch { width: 22px; height: 3px; border-radius: 2px; }
+
+  .controls { display: flex; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
+  .control-group { display: flex; gap: .4rem; align-items: center; }
+  .control-label { color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
+  .btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: .35rem .8rem; font-family: var(--font-mono); font-size: .72rem; cursor: pointer;
+    transition: all .12s; border-radius: 3px;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  select {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: .35rem 1.6rem .35rem .7rem; font-family: var(--font-mono); font-size: .72rem;
+    cursor: pointer; border-radius: 3px; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6b8a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .5rem center;
+  }
+
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+  @media(max-width:700px){ .charts-grid { grid-template-columns: 1fr; } }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1.1rem; position: relative; overflow: hidden;
+  }
+  .chart-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .chart-title { font-family: var(--font-display); font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .09em; margin-bottom: .75rem; }
+  .chart-wrap { position: relative; height: 240px; }
+
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .table-header-bar { display: flex; align-items: center; justify-content: space-between; padding: .9rem 1.1rem; border-bottom: 1px solid var(--border); gap: .75rem; flex-wrap: wrap; }
+  .table-title { font-family: var(--font-display); font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .09em; }
+  .search-input {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: .32rem .7rem; font-family: var(--font-mono); font-size: .7rem;
+    border-radius: 3px; width: 170px; transition: border-color .12s;
+  }
+  .search-input:focus { outline: none; border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+  thead th {
+    background: var(--surface2); color: var(--muted); font-size: .63rem; text-transform: uppercase;
+    letter-spacing: .07em; padding: .65rem .9rem; text-align: right; cursor: pointer;
+    user-select: none; white-space: nowrap; transition: color .12s; border-bottom: 1px solid var(--border);
+  }
+  thead th:first-child, thead th:nth-child(2) { text-align: left; }
+  thead th:hover { color: var(--text); }
+  thead th.sorted { color: var(--accent); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .08s; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: .62rem .9rem; text-align: right; white-space: nowrap; }
+  td:first-child, td:nth-child(2) { text-align: left; }
+  .model-cell { font-family: var(--font-display); font-weight: 700; font-size: .76rem; }
+  .model-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .length-badge { display: inline-block; padding: .12rem .45rem; border-radius: 3px; font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .badge-short  { background: rgba(107,255,216,.14); color: var(--accent3); }
+  .badge-medium { background: rgba(124,107,255,.14); color: var(--accent); }
+  .badge-long   { background: rgba(255,107,157,.14); color: var(--accent2); }
+  .bar-cell { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
+  .mini-bar { height: 3px; border-radius: 2px; min-width: 2px; }
+  .gpu-tag {
+    display: inline-block; font-size: .58rem; padding: .08rem .35rem; border-radius: 2px;
+    background: rgba(255,217,107,.12); color: var(--accent4); border: 1px solid rgba(255,217,107,.25);
+    vertical-align: middle; margin-left: 4px; letter-spacing: .04em;
+  }
+  .na { color: var(--muted); font-size: .7rem; }
+  .no-results { text-align: center; padding: 2rem; color: var(--muted); font-size: .78rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>TTS Benchmark</h1>
+    <span class="subtitle">4 models · 3 lengths · real data</span>
+  </header>
+
+  <div class="stats-strip" id="statsStrip"></div>
+  <div class="legend" id="legend"></div>
+
+  <div class="controls">
+    <div class="control-group">
+      <span class="control-label">Length</span>
+      <button class="btn active" data-len="all"    onclick="filterLength('all',this)">All</button>
+      <button class="btn"        data-len="short"  onclick="filterLength('short',this)">Short</button>
+      <button class="btn"        data-len="medium" onclick="filterLength('medium',this)">Medium</button>
+      <button class="btn"        data-len="long"   onclick="filterLength('long',this)">Long</button>
+    </div>
+    <div class="control-group">
+      <span class="control-label">Chart Metric</span>
+      <select id="metricSelect" onchange="updateChartData()">
+        <option value="chars_per_sec">Chars/s (Speed)</option>
+        <option value="mean_time">Mean Time (s)</option>
+        <option value="ram_delta">RAM Δ MB</option>
+        <option value="ram_per_char">RAM/char</option>
+        <option value="gpu_peak">GPU Peak MB (Qwen3 only)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">By Model → lengths</div>
+      <div class="chart-wrap"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">By Length → models</div>
+      <div class="chart-wrap"><canvas id="c2"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header-bar">
+      <span class="table-title">All Results</span>
+      <input class="search-input" type="text" placeholder="Search model…" oninput="filterSearch(this.value)">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortBy('model')">Model</th>
+          <th onclick="sortBy('length')">Length</th>
+          <th onclick="sortBy('chars')">Chars</th>
+          <th onclick="sortBy('mean_time')">Mean Time (s)</th>
+          <th onclick="sortBy('chars_per_sec')">Chars/s</th>
+          <th onclick="sortBy('ram_delta')">RAM Δ MB</th>
+          <th onclick="sortBy('ram_per_char')">RAM/char</th>
+          <th onclick="sortBy('gpu_peak')">GPU Peak MB</th>
+          <th onclick="sortBy('gpu_per_char')">GPU/char</th>
+        </tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="no-results" id="noResults" style="display:none">No matching results</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS = {
+  'Qwen3-TTS':          '#ffd96b',
+  'CoquiTTS':           '#ff6b9d',
+  'KittenTTS':          '#7c6bff',
+  'KittenTTS-Nano-int8':'#6bffd8',
+};
+
+const RAW = [
+  // Qwen3-TTS (GPU user)
+  { model:'Qwen3-TTS', length:'short',  chars:48,  mean_time:14.6331, chars_per_sec:3.28,  ram_delta:0.60,  ram_per_char:0.0126, gpu_peak:2236.47, gpu_per_char:46.5932 },
+  { model:'Qwen3-TTS', length:'medium', chars:157, mean_time:31.7964, chars_per_sec:4.94,  ram_delta:1.61,  ram_per_char:0.0102, gpu_peak:2493.57, gpu_per_char:15.8826 },
+  { model:'Qwen3-TTS', length:'long',   chars:386, mean_time:82.5463, chars_per_sec:4.68,  ram_delta:3.83,  ram_per_char:0.0099, gpu_peak:3299.67, gpu_per_char:8.5484  },
+  // CoquiTTS
+  { model:'CoquiTTS',  length:'short',  chars:48,  mean_time:2.3332,  chars_per_sec:20.57, ram_delta:22.31, ram_per_char:0.4647, gpu_peak:null,    gpu_per_char:null    },
+  { model:'CoquiTTS',  length:'medium', chars:157, mean_time:9.1352,  chars_per_sec:17.19, ram_delta:231.83,ram_per_char:1.4766, gpu_peak:null,    gpu_per_char:null    },
+  { model:'CoquiTTS',  length:'long',   chars:386, mean_time:27.6433, chars_per_sec:13.96, ram_delta:60.22, ram_per_char:0.1560, gpu_peak:null,    gpu_per_char:null    },
+  // KittenTTS
+  { model:'KittenTTS', length:'short',  chars:48,  mean_time:6.2961,  chars_per_sec:7.62,  ram_delta:28.59, ram_per_char:0.5957, gpu_peak:null,    gpu_per_char:null    },
+  { model:'KittenTTS', length:'medium', chars:157, mean_time:18.3211, chars_per_sec:8.57,  ram_delta:87.19, ram_per_char:0.5553, gpu_peak:null,    gpu_per_char:null    },
+  { model:'KittenTTS', length:'long',   chars:386, mean_time:43.3761, chars_per_sec:8.90,  ram_delta:267.14,ram_per_char:0.6921, gpu_peak:null,    gpu_per_char:null    },
+  // KittenTTS-Nano-int8
+  { model:'KittenTTS-Nano-int8', length:'short',  chars:48,  mean_time:3.3950,  chars_per_sec:14.14, ram_delta:12.00, ram_per_char:0.2501, gpu_peak:null, gpu_per_char:null },
+  { model:'KittenTTS-Nano-int8', length:'medium', chars:157, mean_time:9.8320,  chars_per_sec:15.97, ram_delta:49.69, ram_per_char:0.3165, gpu_peak:null, gpu_per_char:null },
+  { model:'KittenTTS-Nano-int8', length:'long',   chars:386, mean_time:21.8833, chars_per_sec:17.64, ram_delta:95.60, ram_per_char:0.2477, gpu_peak:null, gpu_per_char:null },
+];
+
+const MODELS  = ['Qwen3-TTS','CoquiTTS','KittenTTS','KittenTTS-Nano-int8'];
+const LENGTHS  = ['short','medium','long'];
+const LEN_COLORS = { short:'#6bffd8', medium:'#7c6bff', long:'#ff6b9d' };
+
+let activeLength = 'all', activeSearch = '', sortCol = 'model', sortDir = 1;
+
+// ── CHARTS ───────────────────────────────────────────────────
+const baseOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: { duration: 250 },
+  plugins: {
+    legend: { display: true, labels: { color:'#6b6b8a', font:{ family:'Space Mono', size:10 }, boxWidth:10, padding:8 } },
+    tooltip: { backgroundColor:'#12121a', borderColor:'#2a2a3d', borderWidth:1, titleColor:'#e8e8f0', bodyColor:'#6b6b8a', titleFont:{family:'Space Mono'}, bodyFont:{family:'Space Mono'} }
+  },
+  scales: {
+    x: { grid:{color:'#1a1a26'}, ticks:{color:'#6b6b8a', font:{family:'Space Mono',size:9}} },
+    y: { grid:{color:'#1a1a26'}, ticks:{color:'#6b6b8a', font:{family:'Space Mono',size:9}}, beginAtZero:true }
+  }
+};
+
+const c1 = new Chart(document.getElementById('c1'), {
+  type: 'bar',
+  data: {
+    labels: MODELS,
+    datasets: LENGTHS.map(len => ({
+      label: len,
+      data: new Array(MODELS.length).fill(0),
+      backgroundColor: LEN_COLORS[len] + 'bb',
+      borderColor: LEN_COLORS[len], borderWidth:1, borderRadius:3
+    }))
+  },
+  options: JSON.parse(JSON.stringify(baseOpts))
+});
+
+const c2 = new Chart(document.getElementById('c2'), {
+  type: 'bar',
+  data: {
+    labels: LENGTHS,
+    datasets: MODELS.map(m => ({
+      label: m,
+      data: new Array(LENGTHS.length).fill(0),
+      backgroundColor: COLORS[m] + 'bb',
+      borderColor: COLORS[m], borderWidth:1, borderRadius:3
+    }))
+  },
+  options: JSON.parse(JSON.stringify(baseOpts))
+});
+
+function updateChartData() {
+  const metric = document.getElementById('metricSelect').value;
+  LENGTHS.forEach((len, li) => {
+    c1.data.datasets[li].data = MODELS.map(m => {
+      const row = RAW.find(d => d.model===m && d.length===len);
+      return row ? (row[metric] ?? 0) : 0;
+    });
+  });
+  c1.update('none');
+  MODELS.forEach((m, mi) => {
+    c2.data.datasets[mi].data = LENGTHS.map(len => {
+      const row = RAW.find(d => d.model===m && d.length===len);
+      return row ? (row[metric] ?? 0) : 0;
+    });
+  });
+  c2.update('none');
+}
+
+// ── LEGEND ───────────────────────────────────────────────────
+function buildLegend() {
+  document.getElementById('legend').innerHTML = MODELS.map(m => {
+    const isGPU = m === 'Qwen3-TTS';
+    return `<div class="legend-item">
+      <div class="legend-swatch" style="background:${COLORS[m]}"></div>${m}${isGPU ? '<span class="gpu-tag">GPU</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── STATS ────────────────────────────────────────────────────
+function buildStats() {
+  const best    = RAW.reduce((a,b) => a.chars_per_sec > b.chars_per_sec ? a : b);
+  const fastest = RAW.filter(d => d.chars_per_sec === Math.max(...RAW.map(r=>r.chars_per_sec)))[0];
+  const avg     = (RAW.reduce((s,d)=>s+d.chars_per_sec,0)/RAW.length).toFixed(2);
+  const leanest = RAW.filter(d=>d.ram_delta!==null).reduce((a,b)=> a.ram_delta < b.ram_delta ? a : b);
+  const gpuRows = RAW.filter(d=>d.gpu_peak!==null);
+  const maxGPU  = Math.max(...gpuRows.map(d=>d.gpu_peak)).toFixed(0);
+
+  document.getElementById('statsStrip').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Fastest Model</div>
+      <div class="stat-value" style="color:${COLORS[best.model]};font-size:.88rem">${best.model}</div>
+      <div class="stat-sub">${best.chars_per_sec} chars/s · ${best.length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Speed</div>
+      <div class="stat-value" style="color:var(--accent3)">${avg}</div>
+      <div class="stat-sub">chars/s across all rows</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Leanest RAM</div>
+      <div class="stat-value" style="color:var(--accent4)">${leanest.ram_delta}</div>
+      <div class="stat-sub">MB · ${leanest.model} · ${leanest.length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Max GPU Peak</div>
+      <div class="stat-value" style="color:var(--accent2)">${maxGPU}</div>
+      <div class="stat-sub">MB · Qwen3-TTS · long</div>
+    </div>`;
+}
+
+// ── TABLE ────────────────────────────────────────────────────
+function getFiltered() {
+  return RAW
+    .filter(d => (activeLength==='all'||d.length===activeLength) && d.model.toLowerCase().includes(activeSearch.toLowerCase()))
+    .sort((a,b) => {
+      const av = a[sortCol], bv = b[sortCol];
+      if (av===null && bv===null) return 0;
+      if (av===null) return 1;
+      if (bv===null) return -1;
+      return typeof av==='string' ? sortDir*av.localeCompare(bv) : sortDir*(av-bv);
+    });
+}
+
+function renderTable() {
+  const data = getFiltered();
+  const maxSpd = Math.max(...RAW.map(d=>d.chars_per_sec));
+  const tbody = document.getElementById('tableBody');
+  const noRes = document.getElementById('noResults');
+  if (!data.length) { tbody.innerHTML=''; noRes.style.display='block'; return; }
+  noRes.style.display = 'none';
+
+  tbody.innerHTML = data.map(d => {
+    const c = COLORS[d.model], bw = Math.round(d.chars_per_sec/maxSpd*55);
+    const gpuPeak = d.gpu_peak !== null ? d.gpu_peak.toFixed(2) : '<span class="na">—</span>';
+    const gpuChar = d.gpu_per_char !== null ? d.gpu_per_char.toFixed(4) : '<span class="na">—</span>';
+    return `<tr>
+      <td class="model-cell"><span class="model-dot" style="background:${c}"></span>${d.model}</td>
+      <td><span class="length-badge badge-${d.length}">${d.length}</span></td>
+      <td>${d.chars}</td>
+      <td>${d.mean_time.toFixed(4)}</td>
+      <td><div class="bar-cell">${d.chars_per_sec.toFixed(2)}<div class="mini-bar" style="width:${bw}px;background:${c}"></div></div></td>
+      <td>${d.ram_delta.toFixed(2)}</td>
+      <td>${d.ram_per_char.toFixed(4)}</td>
+      <td>${gpuPeak}</td>
+      <td>${gpuChar}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── EVENTS ───────────────────────────────────────────────────
+function filterLength(len, btn) {
+  activeLength = len;
+  document.querySelectorAll('.btn[data-len]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+function filterSearch(val) { activeSearch = val; renderTable(); }
+function sortBy(col) {
+  sortDir = sortCol===col ? sortDir*-1 : 1; sortCol = col;
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  event.currentTarget.classList.add('sorted');
+  renderTable();
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+buildLegend(); buildStats(); updateChartData(); renderTable();
+</script>
+</body>
+</html>
